@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=piratebox
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -117,6 +117,52 @@ define Package/piratebox/preinst
 	fi
 	exit 0
 endef
+
+define Package/piratebox/prerm
+	#!/bin/sh
+	# Revert-Changes
+	
+	. /usr/share/piratebox/piratebox.common
+
+
+	if [ -e /etc/init.d/luci_fixtime  ] ; then
+	   /etc/init.d/luci_fixtime enable
+	fi
+
+	if [ -e /etc/init.d/luci_dhcp_migrate ] ; then
+	   /etc/init.d/luci_dhcp_migrate enable
+	fi
+
+	if [ -e /etc/init.d/uhttpd ] ; then
+	   /etc/init.d/uhttpd enable
+	fi
+
+	 /etc/init.d/watchdog enable
+	 /etc/init.d/dnsmasq enable
+
+	/etc/init.d/piratebox disable
+	/etc/init.d/piratebox nodns
+	#Stop Piratebox
+	/etc/init.d/piratebox stop
+
+	# undo configuration
+	pb_undoconfig
+
+	echo "Please reboot for changes to take effect."
+endef
+
+define  Package/piratebox/postrm
+	#!/bin/sh
+
+	# remove links, if exists
+
+	[ -e /etc/piratebox.config ] && rm  /etc/piratebox.config  
+	[ -e /etc/init.d/piratebox ] && rm  /etc/init.d/piratebox
+
+	exit 0
+
+endef 
+
 
 define Build/Compile
 endef
