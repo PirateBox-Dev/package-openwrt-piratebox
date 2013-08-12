@@ -4,10 +4,9 @@ PKG_NAME:=piratebox
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=5
 
-
 include $(INCLUDE_DIR)/package.mk
 
-define Package/piratebox
+define Package/piratebox/Default
   SECTION:=net
   CATEGORY:=Network
   TITLE:=PirateBox-Main package
@@ -18,19 +17,28 @@ define Package/piratebox
   MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
 endef
 
-define Package/piratebox-beta
-  $(call Package/piratebox)
-  TITLE:=$(TITLE) links to beta repository
-  PKG_NAME+=-beta
+define Package/piratebox                         
+$(call Package/piratebox/Default)
+  VARIANT:=default
 endef
+
+define Package/piratebox-beta
+$(call Package/piratebox/Default)
+  TITLE += (links to beta repository)
+  VARIANT:=beta
+endef
+
 
 define Package/piratebox/description
 	Turns your OpenWRT Router into a PirateBox; see http://www.daviddarts.com
 endef
 
-define Package/piratebox-beta
-  $(call Package/piratebox/description)
+define Package/piratebox-beta/description
+$(call Package/piratebox/description)
+
+With link to beta sources
 endef
+
 
 define Package/piratebox/postinst
 	#!/bin/sh
@@ -112,9 +120,8 @@ define Package/piratebox/postinst
 	echo "Done"
 endef
 
-define Package/piratebox-beta/postinst
-	$(call Package/piratebox/postinst)
-endef
+
+Package/piratebox-beta/postinst = $(Package/piratebox/postinst)
 
 define Package/piratebox/preinst
 	#!/bin/sh
@@ -131,10 +138,7 @@ define Package/piratebox/preinst
 	exit 0
 endef
 
-define Package/piratebox-beta/preinst
-	$(call Package/piratebox/preinst)
-endef
-
+Package/piratebox-beta/preinst = $(Package/piratebox/preinst)
 
 define Package/piratebox/prerm
 	#!/bin/sh
@@ -169,9 +173,7 @@ define Package/piratebox/prerm
 	echo "Please reboot for changes to take effect."
 endef
 
-define Package/piratebox-beta/prerm
-	$(call Package/piratebox/prerm)
-endef
+Package/piratebox-beta/prerm = $(Package/piratebox/prerm)
 
 define  Package/piratebox/postrm
 	#!/bin/sh
@@ -185,9 +187,8 @@ define  Package/piratebox/postrm
 
 endef 
 
-define Package/piratebox-beta/postrm
-	$(call Package/piratebox/postrm)
-endef
+Package/piratebox-beta/postrm = $(Package/piratebox/postrm)
+
 
 define Build/Compile
 endef
@@ -203,14 +204,10 @@ define Package/piratebox/install
 	$(INSTALL_BIN) ./files/usr/share/piratebox/piratebox.common $(1)/usr/share/piratebox/piratebox.common
 	$(INSTALL_BIN) ./files/etc/piratebox.config $(1)/etc/piratebox.config
 	$(INSTALL_BIN) ./files/etc/init.d/piratebox $(1)/etc/init.d/piratebox
+	( [ "$(BUILD_VARIANT)"  == "beta" ] &&  sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config ) || echo "skipped"
 endef
 
-define Package/piratebox-beta/install
-	$(call Package/piratebox/install)
-	sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config
-endef
+Package/piratebox-beta/install = $(Package/piratebox/install)
 
 $(eval $(call BuildPackage,piratebox))
 $(eval $(call BuildPackage,piratebox-beta))
-
-
