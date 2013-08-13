@@ -18,19 +18,10 @@ define Package/piratebox
   MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
 endef
 
-define Package/piratebox-beta
-  $(call Package/piratebox)
-  TITLE:=$(TITLE) links to beta repository
-  PKG_NAME+=-beta
-endef
-
 define Package/piratebox/description
 	Turns your OpenWRT Router into a PirateBox; see http://www.daviddarts.com
 endef
 
-define Package/piratebox-beta
-  $(call Package/piratebox/description)
-endef
 
 define Package/piratebox/postinst
 	#!/bin/sh
@@ -112,10 +103,6 @@ define Package/piratebox/postinst
 	echo "Done"
 endef
 
-define Package/piratebox-beta/postinst
-	$(call Package/piratebox/postinst)
-endef
-
 define Package/piratebox/preinst
 	#!/bin/sh
 	#Disable Piratebox, it it seems that it is installed
@@ -130,11 +117,6 @@ define Package/piratebox/preinst
 	fi
 	exit 0
 endef
-
-define Package/piratebox-beta/preinst
-	$(call Package/piratebox/preinst)
-endef
-
 
 define Package/piratebox/prerm
 	#!/bin/sh
@@ -169,10 +151,6 @@ define Package/piratebox/prerm
 	echo "Please reboot for changes to take effect."
 endef
 
-define Package/piratebox-beta/prerm
-	$(call Package/piratebox/prerm)
-endef
-
 define  Package/piratebox/postrm
 	#!/bin/sh
 
@@ -185,9 +163,6 @@ define  Package/piratebox/postrm
 
 endef 
 
-define Package/piratebox-beta/postrm
-	$(call Package/piratebox/postrm)
-endef
 
 define Build/Compile
 endef
@@ -205,12 +180,4 @@ define Package/piratebox/install
 	$(INSTALL_BIN) ./files/etc/init.d/piratebox $(1)/etc/init.d/piratebox
 endef
 
-define Package/piratebox-beta/install
-	$(call Package/piratebox/install)
-	sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config
-endef
-
 $(eval $(call BuildPackage,piratebox))
-$(eval $(call BuildPackage,piratebox-beta))
-
-
