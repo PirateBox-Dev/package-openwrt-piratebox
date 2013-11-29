@@ -13,7 +13,7 @@ define Package/piratebox
   TITLE:=PirateBox-Main package
   SUBMENU:=PirateBox
   URL:=http://piratebox.aod-rpg.de
-  DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv
+  DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv +radvd +ip
   PKGARCH:=all
   MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
 endef
