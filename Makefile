@@ -22,6 +22,10 @@ define Package/piratebox/description
 	Turns your OpenWRT Router into a PirateBox; see http://www.daviddarts.com
 endef
 
+define Package/librarybo/conffiles
+/etc/piratebox.config
+endef
+
 
 define Package/piratebox/postinst
 	#!/bin/sh
