@@ -167,16 +167,9 @@ generate_v6() {
 
   test -n "$2" && PREFIX=$2
 
-  CURRENT_GEN=`ifconfig $IF |
-          grep "inet6 addr: fe80" |
-          sed  -n "s|^.*::\([^/]*\)/.*|\1|p" |
-          tr -d ":"`
-
-  FIXED=`echo ${CURRENT_GEN} | tr -d "\012" | 
-                 sed "s|\(....\)\(....\)\(....\)\(....\)|\1:\2:\3:\4|"`
-
-  echo "${initscript}: Extracted for $IF : $PREFIX::$FIXED "
-  V6_GEN_RESULT="$PREFIX::$FIXED"
+  FIXED=$(hexdump -n8 -e '/2 ":%03x" ' /dev/random )
+  echo "${initscript}: Generated IPv6 suffix  for $IF : $PREFIX:$FIXED "
+  V6_GEN_RESULT="$PREFIX:$FIXED"
 }
 
 
