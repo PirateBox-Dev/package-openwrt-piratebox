@@ -133,15 +133,38 @@ pb_netconfig() {
 
   uci set "network.lan.ipaddr=$pb_ip"
   uci set "network.lan.proto=static"
-  #CAVE: wireless config might be platform specific
-  uci set "wireless.radio0.disabled=0"
-  uci set "wireless.@wifi-iface[0].ssid=$pb_wireless_ssid"
+
+  # Make sure that the radio's are set in the wirless config
+  wifi detect >> /etc/config/wireless
+
+  #get all wifi-devices
+  pb_radios=`uci show wireless | grep '=wifi-device' | awk -F'[.=]' '{ print $2 }'`
+
+  #get currently defined ifaces and put them in reverse order
+  pb_ifaces=`uci show wireless | grep '=wifi-iface' | awk -F'[.=]' '{ print $2 }' | sed '1!G;h;$!d'`
+
+  #remove all ifaces except sta's not in the lan zone
+  for pb_iface in $pb_ifaces; do
+    [ "$(uci get wireless.$pb_iface.mode)" = 'sta' ] && [ "$(uci get wireless.$pb_iface.network)" != 'lan' ] && continue
+    uci delete wireless.$pb_iface
+  done
+
+  #loop trough all availlable radios and enable them
+  #set the needed wifi-ifaces again as well.
+  for pb_radio in $pb_radios; do
+    uci set wireless.$pb_radio.disabled=
+    uci add wireless wifi-iface
+    uci set wireless.@wifi-iface[-1].device="$pb_radio"
+    uci set wireless.@wifi-iface[-1].mode='ap'
+    uci set wireless.@wifi-iface[-1].network='lan'
+    uci set wireless.@wifi-iface[-1].ssid="$pb_wireless_ssid"
+    uci set wireless.@wifi-iface[-1].encryption='none'
+  done
+
   uci commit
    
-   # activate config changes
-   /etc/init.d/firewall restart
-   wifi
-
+  # activate config changes (including firewall)
+  /etc/init.d/network restart
 }
 
 
