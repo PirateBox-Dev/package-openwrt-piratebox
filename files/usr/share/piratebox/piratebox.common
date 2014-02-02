@@ -164,8 +164,6 @@ pb_netconfig() {
 
   uci commit
    
-  # activate config changes (including firewall)
-  /etc/init.d/network restart
 }
 
 
