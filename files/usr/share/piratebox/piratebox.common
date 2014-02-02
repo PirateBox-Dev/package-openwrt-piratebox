@@ -159,6 +159,7 @@ pb_netconfig() {
     uci set wireless.@wifi-iface[-1].network='lan'
     uci set wireless.@wifi-iface[-1].ssid="$pb_wireless_ssid"
     uci set wireless.@wifi-iface[-1].encryption='none'
+    uci set wireless.@wifi-iface[-1].isolate='1'
   done
 
   uci commit
