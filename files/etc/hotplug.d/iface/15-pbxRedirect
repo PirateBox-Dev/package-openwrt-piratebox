@@ -24,7 +24,7 @@ updateRedirect() {
 		{ [ "$name" = 'dns_pbx' ] || [ "$name" = 'http_pbx' ]; } || continue
 		config_get destIp $section dest_ip
 		[ "$destIp" = "$ipaddr" ] && continue
-		config_set $secttion dest_ip "$ipaddr"
+		config_set $section dest_ip "$ipaddr"
 		uci_set firewall $section dest_ip "$ipaddr"
 		logger -t 'firewall' -p 'daemon.5' "updating option dest_ip of the redirect rule $name to $ipaddr"
 	done
