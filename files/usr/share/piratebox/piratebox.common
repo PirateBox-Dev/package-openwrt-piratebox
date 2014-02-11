@@ -161,9 +161,27 @@ pb_netconfig() {
     uci set wireless.@wifi-iface[-1].encryption='none'
     uci set wireless.@wifi-iface[-1].isolate='1'
   done
+  
+  #Add dns redirection rule
+  uci add firewall redirect
+  uci set firewall.@redirect[-1].name='dns_pbx'
+  uci set firewall.@redirect[-1].src_dport='53'
+  uci set firewall.@redirect[-1].target='DNAT'
+  uci set firewall.@redirect[-1].proto='tcp udp'
+  uci set firewall.@redirect[-1].src='lan'
+  uci set firewall.@redirect[-1].dest_ip="$pb_ip"
+
+  #Add http redirection rule, disabled by default
+  uci add firewall redirect
+  uci set firewall.@redirect[-1].enabled='0'
+  uci set firewall.@redirect[-1].name='http_pbx'
+  uci set firewall.@redirect[-1].src_dport='80'
+  uci set firewall.@redirect[-1].target='DNAT'
+  uci set firewall.@redirect[-1].proto='tcp'
+  uci set firewall.@redirect[-1].src='lan'
+  uci set firewall.@redirect[-1].dest_ip="$pb_ip"
 
   uci commit
-   
 }
 
 
