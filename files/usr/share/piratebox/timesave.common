@@ -8,9 +8,7 @@ pb_install_timesave() {
 
 	local timesave_script=$1 ; shift
 	local piratebox_config=$1 ; shift
-
-	echo "Executing timesave script"
-	$timesave_script $piratebox_config install	
+	
         echo "Placing Timerecover on Startup" 
         echo " $timesave_script $piratebox_config recover " >> /etc/rc.local 
         sed  's:exit:#exit:g' -i /etc/rc.local 
