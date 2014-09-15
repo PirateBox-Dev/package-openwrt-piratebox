@@ -12,13 +12,14 @@ define Package/piratebox/Default
 	TITLE:=PirateBox-Main package
 	SUBMENU:=PirateBox
 	URL:=http://piratebox.aod-rpg.de
-	DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo
 	PKGARCH:=all
 	MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
 endef
 
 define Package/piratebox
 	$(call Package/piratebox/Default)
+	DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo
+	MENU:=1
 endef
 
 define Package/piratebox/description
@@ -158,12 +159,6 @@ define  Package/piratebox/postrm
 	exit 0
 endef
 
-define Build/Compile
-endef
-
-define Build/Configure
-endef
-
 define Package/piratebox/install
 	$(INSTALL_DIR) $(1)/usr/share/piratebox
 	$(INSTALL_DIR) $(1)/etc/
@@ -176,6 +171,12 @@ define Package/piratebox/install
 	$(INSTALL_BIN) ./files/etc/init.d/piratebox $(1)/etc/init.d/piratebox
 	$(INSTALL_BIN) ./files/etc/hotplug.d/iface/15-pbxRedirect $(1)/etc/hotplug.d/iface/15-pbxRedirect
 	( [ "$(CONFIG_PIRATEBOX_BETA)" == "y" ] && sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config ) || echo "skipped"
+endef
+
+define Build/Compile
+endef
+
+define Build/Configure
 endef
 
 $(eval $(call BuildPackage,piratebox))
