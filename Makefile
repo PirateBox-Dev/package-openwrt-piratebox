@@ -7,10 +7,9 @@ PKG_RELEASE:=8
 include $(INCLUDE_DIR)/package.mk
 
 define Package/piratebox/Default
+	SUBMENU:=PirateBox
 	SECTION:=net
 	CATEGORY:=Network
-	TITLE:=PirateBox-Main package
-	SUBMENU:=PirateBox
 	URL:=http://piratebox.aod-rpg.de
 	PKGARCH:=all
 	MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
@@ -18,8 +17,15 @@ endef
 
 define Package/piratebox
 	$(call Package/piratebox/Default)
-	DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo
+	DEPENDS:=+python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo
 	MENU:=1
+	TITLE:=PirateBox-Main package
+endef
+
+define Package/piratebox-mod-imageboard
+	$(call Package/piratebox/Default)
+	DEPENDS:=+piratebox +perl +perlbase-base +perlbase-cgi  +perlbase-essential  +perlbase-file  +perlbase-bytes  +perlbase-config   +perlbase-data  +perlbase-db-file   +perlbase-digest +perlbase-encode  +perlbase-encoding  +perlbase-fcntl  +perlbase-gdbm-file  +perlbase-integer  +perlbase-socket  +perlbase-time  +perlbase-unicode  +perlbase-unicore  +perlbase-utf8  +perlbase-xsloader  +unzip
+	TITLE:=imageboard modification
 endef
 
 define Package/piratebox/description
@@ -173,10 +179,60 @@ define Package/piratebox/install
 	( [ "$(CONFIG_PIRATEBOX_BETA)" == "y" ] && sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config ) || echo "skipped"
 endef
 
+define Package/piratebox-mod-imageboard/description
+   not valid as a direct install.
+   Installs the needed packages and configurations to enhance the piratebox imageboard stuff
+endef
+
+define Package/piratebox-mod-imageboard/postinst
+        #!/bin/sh
+        #stuff needed because there is no ext-perl package
+	. /etc/ext.config
+	
+	ln -s $$ext_linktarget/usr/bin/perl /usr/bin/perl
+	ln -s $$ext_linktarget/usr/lib/perl* /usr/lib/
+	#hotfix for some weired path issues
+	ln -s  $$ext_linktarget/usr/bin/unzip /usr/bin
+	#start the init from piratebox scripts
+        . /etc/piratebox.config
+	KAREHA_RELEASE=kareha_3.1.4.zip
+	if [ -e $$ext_usbmount/install/$$KAREHA_RELEASE ] ; then 
+		cp $$ext_usbmount/install/$$KAREHA_RELEASE  $$pb_pbmount/tmp
+	fi
+	$$pb_pbmount/bin/install_piratebox.sh  "$$pb_piratebox_conf"  imageboard
+       exit 0
+endef
+
+define Package/piratebox-mod-imageboard/prerm
+	#!/bin/sh
+	# cleanup our linked stuff
+	# do only when linked
+	if [ -L /usr/bin/perl ] ; then
+		echo "Removing symlinks"
+		rm /usr/bin/perl
+		rm /usr/lib/perl*
+	fi
+	[[ -L /usr/bin/unzip ]] && rm /usr/bin/unzip
+endef
+
+#define Package/piratebox-mod-imageboard/install
+#	$(INSTALL_DIR) $(1)/tmp/imageboard
+#	$(INSTALL_BIN) ./files/spacer $(1)/tmp/imageboard/spacer
+#endef
+
 define Build/Compile
 endef
 
 define Build/Configure
 endef
 
+define BuildPlugin
+  define Package/$(1)/install
+		$(INSTALL_DIR) $(1)/tmp/ext
+		$(INSTALL_BIN) ./files/spacer $(1)/tmp/ext/spacer
+  endef
+  $$(eval $$(call BuildPackage,$(1)))
+endef
+
 $(eval $(call BuildPackage,piratebox))
+$(eval $(call BuildPlugin,piratebox-mod-imageboard))
