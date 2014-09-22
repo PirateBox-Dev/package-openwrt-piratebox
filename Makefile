@@ -7,33 +7,20 @@ PKG_RELEASE:=8
 include $(INCLUDE_DIR)/package.mk
 
 define Package/piratebox/Default
-	SUBMENU:=PirateBox
 	SECTION:=net
 	CATEGORY:=Network
-	URL:=http://piratebox.aod-rpg.de
-	PKGARCH:=all
-	MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
+	SUBMENU:=PirateBox
 endef
 
 define Package/piratebox
 	$(call Package/piratebox/Default)
-	DEPENDS:=+python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo
 	MENU:=1
 	TITLE:=PirateBox-Main package
-endef
-
-define Package/piratebox-mod-imageboard
-	$(call Package/piratebox/Default)
-	DEPENDS:=+piratebox +perl +perlbase-base +perlbase-cgi  +perlbase-essential  +perlbase-file  +perlbase-bytes  +perlbase-config   +perlbase-data  +perlbase-db-file   +perlbase-digest +perlbase-encode  +perlbase-encoding  +perlbase-fcntl  +perlbase-gdbm-file  +perlbase-integer  +perlbase-socket  +perlbase-time  +perlbase-unicode  +perlbase-unicore  +perlbase-utf8  +perlbase-xsloader  +unzip
-	TITLE:=imageboard modification
+	DEPENDS:=+python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo
 endef
 
 define Package/piratebox/description
 	Turns your OpenWRT Router into a PirateBox; see http://www.daviddarts.com
-endef
-
-define Package/librarybo/conffiles
-	/etc/piratebox.config
 endef
 
 define Package/piratebox/postinst
@@ -53,7 +40,7 @@ define Package/piratebox/postinst
 
 	# disable web interface, start PirateBox instead
 	# Only disable if installed!
-	if [ -e /etc/init.d/uhttpd ]; then 
+	if [ -e /etc/init.d/uhttpd ]; then
 		echo "Stopping uttpd and disable it"
 		/etc/init.d/uhttpd stop
 		/etc/init.d/uhttpd disable
@@ -87,7 +74,7 @@ define Package/piratebox/postinst
 		/etc/init.d/piratebox setup
 		[ $$? -ne 0 ] && exit 99
 		setup_run=1
-		touch $$PKG_ROOT/etc/piratebox.install_done 
+		touch $$PKG_ROOT/etc/piratebox.install_done
 	fi
 	# prepare USB partition and install PirateBox
 	/etc/init.d/piratebox init
@@ -95,12 +82,12 @@ define Package/piratebox/postinst
 	# start PirateBox service
 	/etc/init.d/piratebox enable
 	/etc/init.d/piratebox start
-	
+
 	echo "Bringing PirateBox down again and leave image mounted"
 	echo " for further installation"
 	/etc/init.d/piratebox  stop_keep
- 
-	if [[ "$$setup_run"  -eq "1" ]]; then
+
+	if [[ "$$setup_run" -eq "1" ]]; then
 		# give some user feedback
 		echo "Setup complete!"
 		echo "You can remove the WAN connection now."
@@ -117,7 +104,7 @@ define Package/piratebox/preinst
 		/etc/init.d/piratebox stop
 	fi
 
-	if [ -z $$PKG_ROOT ]; then
+	if [ -z $$PKG_ROOT ] ; then
 		echo "Attention, since package piratebox version 1.0, piratebox needs to be installed on installation destination "ext", which is created by the package extendRoot. See http://piratebox.aod-rpg.de for more informations"
 		echo " ... " && sleep 2
 		echo " ... " && sleep 2
@@ -172,42 +159,48 @@ define Package/piratebox/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/usr/share/piratebox/piratebox.common $(1)/usr/share/piratebox/piratebox.common
-	$(INSTALL_BIN) ./files/usr/share/piratebox/timesave.common $(1)/usr/share/piratebox/timesave.common
+	$(INSTALL_BIN) ./files/usr/share/piratebox/timesave.common  $(1)/usr/share/piratebox/timesave.common
 	$(INSTALL_BIN) ./files/etc/piratebox.config $(1)/etc/piratebox.config
 	$(INSTALL_BIN) ./files/etc/init.d/piratebox $(1)/etc/init.d/piratebox
 	$(INSTALL_BIN) ./files/etc/hotplug.d/iface/15-pbxRedirect $(1)/etc/hotplug.d/iface/15-pbxRedirect
-	( [ "$(CONFIG_PIRATEBOX_BETA)" == "y" ] && sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config ) || echo "skipped"
+	( [ "$(CONFIG_PIRATEBOX_BETA)"  == "y" ] &&  sed 's|piratebox.aod-rpg.de|beta.openwrt.piratebox.de|' -i $(1)/etc/piratebox.config ) || echo "skipped"
+endef
+
+define Package/piratebox-mod-imageboard
+	$(call Package/piratebox/Default)
+	DEPENDS:=piratebox +perl +perlbase-base +perlbase-cgi +perlbase-essential +perlbase-file +perlbase-bytes +perlbase-config +perlbase-data +perlbase-db-file +perlbase-digest +perlbase-encode +perlbase-encoding +perlbase-fcntl +perlbase-gdbm-file +perlbase-integer +perlbase-socket +perlbase-time +perlbase-unicode +perlbase-unicore +perlbase-utf8 +perlbase-xsloader +unzip
+	TITLE:=imageboard modification module
 endef
 
 define Package/piratebox-mod-imageboard/description
-   not valid as a direct install.
-   Installs the needed packages and configurations to enhance the piratebox imageboard stuff
+	not valid as a direct install.
+	Installs the needed packages and configurations to enhance the piratebox imageboard stuff
 endef
 
 define Package/piratebox-mod-imageboard/postinst
-        #!/bin/sh
-        #stuff needed because there is no ext-perl package
+	#!/bin/sh
+	#stuff needed because there is no ext-perl package
 	. /etc/ext.config
-	
-	ln -s $$ext_linktarget/usr/bin/perl /usr/bin/perl
-	ln -s $$ext_linktarget/usr/lib/perl* /usr/lib/
+
+	[[ ! -e /usr/bin/perl ]] && ln -s $$ext_linktarget/usr/bin/perl /usr/bin/perl
+	[[ ! -e /usr/lib/perl* ]] && ln -s $$ext_linktarget/usr/lib/perl* /usr/lib/
 	#hotfix for some weired path issues
-	ln -s  $$ext_linktarget/usr/bin/unzip /usr/bin
+	[[ ! -e /usr/bin/unzip ]] && ln -s $$ext_linktarget/usr/bin/unzip /usr/bin
 	#start the init from piratebox scripts
-        . /etc/piratebox.config
+	. /etc/piratebox.config
 	KAREHA_RELEASE=kareha_3.1.4.zip
-	if [ -e $$ext_usbmount/install/$$KAREHA_RELEASE ] ; then 
+	if [ -e $$ext_usbmount/install/$$KAREHA_RELEASE ]; then
 		cp $$ext_usbmount/install/$$KAREHA_RELEASE  $$pb_pbmount/tmp
 	fi
-	$$pb_pbmount/bin/install_piratebox.sh  "$$pb_piratebox_conf"  imageboard
-       exit 0
+	$$pb_pbmount/bin/install_piratebox.sh "$$pb_piratebox_conf" imageboard
+	exit 0
 endef
 
 define Package/piratebox-mod-imageboard/prerm
 	#!/bin/sh
 	# cleanup our linked stuff
 	# do only when linked
-	if [ -L /usr/bin/perl ] ; then
+	if [ -L /usr/bin/perl ]; then
 		echo "Removing symlinks"
 		rm /usr/bin/perl
 		rm /usr/lib/perl*
@@ -215,10 +208,10 @@ define Package/piratebox-mod-imageboard/prerm
 	[[ -L /usr/bin/unzip ]] && rm /usr/bin/unzip
 endef
 
-#define Package/piratebox-mod-imageboard/install
-#	$(INSTALL_DIR) $(1)/tmp/imageboard
-#	$(INSTALL_BIN) ./files/spacer $(1)/tmp/imageboard/spacer
-#endef
+define Package/piratebox-mod-imageboard/install
+	$(INSTALL_DIR) $(1)/tmp/imageboard
+	$(INSTALL_BIN) ./files/spacer $(1)/tmp/imageboard/spacer
+endef
 
 define Build/Compile
 endef
@@ -226,13 +219,5 @@ endef
 define Build/Configure
 endef
 
-define BuildPlugin
-  define Package/$(1)/install
-		$(INSTALL_DIR) $(1)/tmp/ext
-		$(INSTALL_BIN) ./files/spacer $(1)/tmp/ext/spacer
-  endef
-  $$(eval $$(call BuildPackage,$(1)))
-endef
-
 $(eval $(call BuildPackage,piratebox))
-$(eval $(call BuildPlugin,piratebox-mod-imageboard))
+$(eval $(call BuildPackage,piratebox-mod-imageboard))
