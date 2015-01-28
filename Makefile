@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=piratebox
 PKG_VERSION:=1.1.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -13,7 +13,7 @@ define Package/piratebox
   TITLE:=PirateBox-Main package
   SUBMENU:=PirateBox
   URL:=http://piratebox.aod-rpg.de
-  DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo +radvd +ip
+  DEPENDS:= +python +lighttpd +lighttpd-mod-cgi +lighttpd-mod-redirect +lighttpd-mod-alias +lighttpd-mod-setenv  +lighttpd-mod-fastcgi +php5-cgi +zoneinfo-core +zoneinfo-simple +php5-mod-json  +php5-mod-sqlite3 +php5-mod-pdo-sqlite +php5-mod-sqlite +php5-mod-pdo +php5-mod-json +php5-mod-gd +radvd +ip
   PKGARCH:=all
   MAINTAINER:=Matthias Strubel <matthias.strubel@aod-rpg.de>
 endef
